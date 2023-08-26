@@ -27,3 +27,16 @@ func (r *AuthPostgres) CreateUser(user user_segmentation.User) (int, error) {
 
 	return id, nil
 }
+
+func (r *AuthPostgres) UserExists(user_id int) (bool, error) {
+	var exists bool
+
+	query := fmt.Sprintf("SELECT EXISTS (SELECT * FROM %s WHERE id=$1)", usersTable)
+	row := r.db.QueryRow(query, user_id)
+
+	if err := row.Scan(&exists); err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}

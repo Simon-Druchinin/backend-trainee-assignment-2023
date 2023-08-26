@@ -16,3 +16,7 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 func (s *AuthService) CreateUser(user user_segmentation.User) (int, error) {
 	return s.repo.CreateUser(user)
 }
+
+func (s *AuthService) UserExists(user_id int) (bool, error) {
+	return s.repo.UserExists(user_id)
+}
