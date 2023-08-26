@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  db:
+    container_name: user_segmentation_pg_db
+    image: postgres:15.4-bookworm
+    restart: always
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data/
+      - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env.dev
+  
+  pgadmin:
+    container_name: user_segmentation_pgadmin
+    image: dpage/pgadmin4
+    env_file:
+      - .env.dev
+    ports:
+      - "5050:80"
