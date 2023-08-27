@@ -1,0 +1,46 @@
+basePath: /
+definitions:
+  handler.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  user_segmentation.User:
+    properties:
+      id:
+        type: integer
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API Server for User Segmentation Application
+  title: User Segmentation App API
+  version: "1.0"
+paths:
+  /auth/register:
+    post:
+      description: create user
+      operationId: create-user
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User
+          schema:
+            $ref: '#/definitions/user_segmentation.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Register
+      tags:
+      - auth
+swagger: "2.0"

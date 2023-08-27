@@ -4,6 +4,10 @@ import (
 	"user_segmentation/pkg/service"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
+
+	_ "user_segmentation/docs"
 )
 
 type Handler struct {
@@ -16,6 +20,8 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := router.Group("/auth")
 	{
@@ -31,12 +37,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		}
 		users := api.Group("users")
 		{
-			segments := users.Group("/segments")
-			{
-				segments.GET("/show_active", h.showUserActiveSegments)
-				segments.POST("/add_segment/:slug", h.addUserToSegment)
-				segments.DELETE("/delete_segment/:slug", h.deleteUserFromSegment)
-			}
+			users.GET("/show_active_segments", h.showUserActiveSegments)
+			users.POST("/add_to_segment", h.addUserToSegment)
+			users.DELETE("/delete_from_segment/:slug", h.deleteUserFromSegment)
 		}
 	}
 

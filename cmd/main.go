@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
 	"user_segmentation"
 	"user_segmentation/pkg/handler"
 	"user_segmentation/pkg/repository"
@@ -12,6 +15,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
+
+//	@title			User Segmentation App API
+//	@version		1.0
+//	@description	API Server for User Segmentation Application
+
+//	@host		localhost:8000
+//	@BasePath	/
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
@@ -42,8 +52,26 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	server := new(user_segmentation.Server)
-	if err := server.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		logrus.Fatalf("Error occured while running http server: %s", err.Error())
+	go func() {
+		if err := server.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+			logrus.Fatalf("Error occured while running http server: %s", err.Error())
+		}
+	}()
+
+	logrus.Print("UserSegmentationApp STARTED")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	logrus.Print("UserSegmentationApp is SHUTTING DOWN")
+
+	if err := server.Shutdown(context.Background()); err != nil {
+		logrus.Errorf("Error occured while stopping http server: %s", err.Error())
+	}
+
+	if err := db.Close(); err != nil {
+		logrus.Errorf("Error occured while closing db connection: %s", err.Error())
 	}
 }
 
