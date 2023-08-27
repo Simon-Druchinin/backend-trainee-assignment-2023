@@ -5,10 +5,22 @@ definitions:
       message:
         type: string
     type: object
-  user_segmentation.User:
+  handler.statusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  handler.successBaseResponse:
     properties:
       id:
         type: integer
+    type: object
+  user_segmentation.Segment:
+    properties:
+      slug:
+        type: string
+    required:
+    - slug
     type: object
 host: localhost:8000
 info:
@@ -17,17 +29,118 @@ info:
   title: User Segmentation App API
   version: "1.0"
 paths:
+  /api/segments:
+    post:
+      consumes:
+      - application/json
+      description: Create a segment
+      operationId: create-segment
+      parameters:
+      - description: Segment data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user_segmentation.Segment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: id
+          schema:
+            $ref: '#/definitions/handler.successBaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create segment
+      tags:
+      - segments
+  /api/segments/{slug}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a segment
+      operationId: delete-segment
+      parameters:
+      - description: Segment slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete segment
+      tags:
+      - segments
+  /api/users/{id}/show_active_segments:
+    get:
+      consumes:
+      - application/json
+      description: Show user active segments
+      operationId: show-user-active-segments
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Show user active segments
+      tags:
+      - users
   /auth/register:
     post:
-      description: create user
+      description: Create user
       operationId: create-user
       produces:
       - application/json
       responses:
         "201":
-          description: User
+          description: id
           schema:
-            $ref: '#/definitions/user_segmentation.User'
+            $ref: '#/definitions/handler.successBaseResponse'
         "400":
           description: Bad Request
           schema:

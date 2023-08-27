@@ -9,10 +9,10 @@ import (
 
 // @Summary		Register
 // @Tags		auth
-// @Description	create user
+// @Description	Create user
 // @ID			create-user
 // @Produce		application/json
-// @Success		201	{object} user_segmentation.User "User"
+// @Success		201	{object} successBaseResponse "id"
 // @Failure		400 {object} errorResponse
 // @Failure		404 {object} errorResponse
 // @Failure		500 {object} errorResponse
@@ -25,7 +25,7 @@ func (h *Handler) register(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusCreated, map[string]interface{}{
-		"id": id,
+	c.JSON(http.StatusCreated, successBaseResponse{
+		Id: id,
 	})
 }

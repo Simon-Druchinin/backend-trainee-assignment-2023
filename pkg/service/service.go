@@ -11,7 +11,9 @@ type Authorization interface {
 }
 
 type Segment interface {
-	CreateSegment(segment user_segmentation.Segment) (int, error)
+	Create(segment user_segmentation.Segment) (int, error)
+	Exists(slug string) (bool, error)
+	Delete(slug string) error
 }
 
 type Service struct {

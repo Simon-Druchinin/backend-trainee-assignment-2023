@@ -4,6 +4,8 @@ go 1.21.0
 
 require github.com/lib/pq v1.10.9
 
+require github.com/gin-contrib/cors v1.4.0 // indirect
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.2.0 // indirect

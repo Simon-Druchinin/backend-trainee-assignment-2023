@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"net/http"
 	"user_segmentation/pkg/service"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -21,6 +23,12 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
+	// Do not use in production - explicitly set allowed origins
+	router.Use(cors.Default())
+
+	router.GET("/docs", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/docs/index.html")
+	})
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := router.Group("/auth")
@@ -32,7 +40,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		segments := api.Group("/segments")
 		{
-			segments.POST("/", h.createSegment)
+			segments.POST("", h.createSegment)
 			segments.DELETE("/:slug", h.deleteSegment)
 		}
 		users := api.Group("users")
