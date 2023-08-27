@@ -16,14 +16,20 @@ type Segment interface {
 	Delete(slug string) error
 }
 
+type User interface {
+	GetActiveSegment(user_id int) ([]user_segmentation.UserSegment, error)
+}
+
 type Service struct {
 	Authorization
 	Segment
+	User
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
 		Segment:       NewSegmentService(repos.Segment),
+		User:          NewUserService(repos.User),
 	}
 }

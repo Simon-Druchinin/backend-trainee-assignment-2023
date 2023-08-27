@@ -17,14 +17,20 @@ type Segment interface {
 	Delete(slug string) error
 }
 
+type User interface {
+	GetActiveSegment(user_id int) ([]user_segmentation.UserSegment, error)
+}
+
 type Repository struct {
 	Authorization
 	Segment
+	User
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		Segment:       NewSegmentPostgres(db),
+		User:          NewUserPostgres(db),
 	}
 }
