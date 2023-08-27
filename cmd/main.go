@@ -10,10 +10,15 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
+
+	if err := initConfig(); err != nil {
+		logrus.Fatalf("Error occured while initializing configs: %s", err.Error())
+	}
 
 	if err := godotenv.Load(".env.dev"); err != nil {
 		logrus.Fatalf("Error occured while loading env variables: %s", err.Error())
@@ -37,7 +42,13 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	server := new(user_segmentation.Server)
-	if err := server.Run("8000", handlers.InitRoutes()); err != nil {
+	if err := server.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("Error occured while running http server: %s", err.Error())
 	}
+}
+
+func initConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }
