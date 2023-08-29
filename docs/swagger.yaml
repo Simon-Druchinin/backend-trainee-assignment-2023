@@ -147,6 +147,45 @@ paths:
       summary: Add user to segment
       tags:
       - users
+  /api/users/{id}/delete_from_segment/{slug}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user from segment
+      operationId: delete-user-from-segment
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Segment slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Delete user from segment
+      tags:
+      - users
   /api/users/{id}/show_active_segments:
     get:
       consumes:

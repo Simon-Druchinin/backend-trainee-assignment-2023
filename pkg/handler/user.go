@@ -138,6 +138,58 @@ func (h *Handler) addUserToSegment(c *gin.Context) {
 	})
 }
 
+// @Summary		Delete user from segment
+// @Tags		users
+// @Description	Delete user from segment
+// @ID			delete-user-from-segment
+// @Accept		json
+// @Produce		json
+// @Success		200 {object} statusResponse
+// @Param		id path int true "User ID"
+// @Param		slug path string true "Segment slug"
+// @Failure		400 {object} errorResponse
+// @Failure		404 {object} errorResponse
+// @Failure		500 {object} errorResponse
+// @Router		/api/users/{id}/delete_from_segment/{slug} [delete]
 func (h *Handler) deleteUserFromSegment(c *gin.Context) {
+	user_id, valid := h.validateUserIdParam("id", c)
 
+	if !valid {
+		return
+	}
+
+	slug := c.Param("slug")
+
+	exists, err := h.services.Segment.Exists(slug)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !exists {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Segment with name '%s' does not exist`, slug))
+		return
+	}
+
+	exists, err = h.services.User.SegmentRelationExists(user_id, slug)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !exists {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Relation ('%d':'%s') does not exist`, user_id, slug))
+		return
+	}
+
+	err = h.services.User.DeleteSegmentRelation(user_id, slug)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusCreated, statusResponse{"ok"})
 }

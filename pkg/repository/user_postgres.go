@@ -60,3 +60,11 @@ func (r *UserPostgres) SegmentRelationExists(user_id int, slug string) (bool, er
 
 	return exists, nil
 }
+
+func (r *UserPostgres) DeleteSegmentRelation(user_id int, slug string) error {
+	query := fmt.Sprintf(`DELETE FROM %s
+						USING %s
+						WHERE user_id=$1 AND slug=$2 AND segment_id=segments.id`, usersSegmentsRelationTable, segmentsTable)
+	_, err := r.db.Exec(query, user_id, slug)
+	return err
+}

@@ -24,3 +24,7 @@ func (s *UserService) AddToSegment(user_id int, slug string) (int, error) {
 func (s *UserService) SegmentRelationExists(user_id int, slug string) (bool, error) {
 	return s.repo.SegmentRelationExists(user_id, slug)
 }
+
+func (s *UserService) DeleteSegmentRelation(user_id int, slug string) error {
+	return s.repo.DeleteSegmentRelation(user_id, slug)
+}
