@@ -183,7 +183,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users/{id}/delete_from_segment/{slug}": {
+        "/api/users/{id}/delete_from_segment": {
             "delete": {
                 "description": "Delete user from segment",
                 "consumes": [
@@ -206,11 +206,16 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Segment slug",
-                        "name": "slug",
-                        "in": "path",
-                        "required": true
+                        "description": "Segment data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 ],
                 "responses": {

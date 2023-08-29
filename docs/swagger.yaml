@@ -149,7 +149,7 @@ paths:
       summary: Add user to segment
       tags:
       - users
-  /api/users/{id}/delete_from_segment/{slug}:
+  /api/users/{id}/delete_from_segment:
     delete:
       consumes:
       - application/json
@@ -161,11 +161,14 @@ paths:
         name: id
         required: true
         type: integer
-      - description: Segment slug
-        in: path
-        name: slug
+      - description: Segment data
+        in: body
+        name: input
         required: true
-        type: string
+        schema:
+          items:
+            type: string
+          type: array
       produces:
       - application/json
       responses:
