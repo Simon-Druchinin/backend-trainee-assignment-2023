@@ -15,6 +15,15 @@ definitions:
       id:
         type: integer
     type: object
+  handler.userSegments:
+    properties:
+      slugs:
+        items:
+          type: string
+        type: array
+      user_id:
+        type: integer
+    type: object
   user_segmentation.Segment:
     properties:
       slug:
@@ -98,6 +107,46 @@ paths:
       summary: Delete segment
       tags:
       - segments
+  /api/users/{id}/add_to_segment:
+    post:
+      consumes:
+      - application/json
+      description: Add user to segment
+      operationId: add-user-to-segment
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Segment data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user_segmentation.Segment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.successBaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Add user to segment
+      tags:
+      - users
   /api/users/{id}/show_active_segments:
     get:
       consumes:
@@ -115,6 +164,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/handler.userSegments'
         "400":
           description: Bad Request
           schema:

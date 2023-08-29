@@ -16,3 +16,11 @@ func NewUserService(repo repository.User) *UserService {
 func (s *UserService) GetActiveSegment(user_id int) ([]user_segmentation.UserSegment, error) {
 	return s.repo.GetActiveSegment(user_id)
 }
+
+func (s *UserService) AddToSegment(user_id int, slug string) (int, error) {
+	return s.repo.AddToSegment(user_id, slug)
+}
+
+func (s *UserService) SegmentRelationExists(user_id int, slug string) (bool, error) {
+	return s.repo.SegmentRelationExists(user_id, slug)
+}

@@ -4,9 +4,38 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"user_segmentation"
 
 	"github.com/gin-gonic/gin"
 )
+
+type userSegments struct {
+	User_id int
+	Slugs   []string
+}
+
+func (h *Handler) validateUserIdParam(paramName string, c *gin.Context) (int, bool) {
+	user_id, err := strconv.Atoi(c.Param(paramName))
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Invalid id param")
+		return 0, false
+	}
+
+	exists, err := h.services.Authorization.UserExists(user_id)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return 0, false
+	}
+
+	if !exists {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`User with id '%d' does not exist`, user_id))
+		return 0, false
+	}
+
+	return user_id, true
+}
 
 // @Summary		Show user active segments
 // @Tags		users
@@ -14,29 +43,16 @@ import (
 // @ID			show-user-active-segments
 // @Accept		json
 // @Produce		json
-// @Success		200
+// @Success		200 {object} userSegments
 // @Param		id path int true "User ID"
 // @Failure		400 {object} errorResponse
 // @Failure		404 {object} errorResponse
 // @Failure		500 {object} errorResponse
 // @Router		/api/users/{id}/show_active_segments [get]
 func (h *Handler) showUserActiveSegments(c *gin.Context) {
-	user_id, err := strconv.Atoi(c.Param("id"))
+	user_id, valid := h.validateUserIdParam("id", c)
 
-	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param")
-		return
-	}
-
-	exists, err := h.services.Authorization.UserExists(user_id)
-
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	if !exists {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`User with id '%d' does not exist`, user_id))
+	if !valid {
 		return
 	}
 
@@ -47,11 +63,79 @@ func (h *Handler) showUserActiveSegments(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, activeSegments)
+	var output userSegments
+
+	output.User_id = user_id
+	output.Slugs = []string{}
+
+	for _, m := range activeSegments {
+		output.Slugs = append(output.Slugs, m.Slug)
+	}
+
+	c.JSON(http.StatusOK, output)
 }
 
+// @Summary		Add user to segment
+// @Tags		users
+// @Description	Add user to segment
+// @ID			add-user-to-segment
+// @Accept		json
+// @Produce		json
+// @Success		200 {object} successBaseResponse
+// @Param		id path int true "User ID"
+// @Param		input body user_segmentation.Segment true "Segment data"
+// @Failure		400 {object} errorResponse
+// @Failure		404 {object} errorResponse
+// @Failure		500 {object} errorResponse
+// @Router		/api/users/{id}/add_to_segment [post]
 func (h *Handler) addUserToSegment(c *gin.Context) {
+	user_id, valid := h.validateUserIdParam("id", c)
 
+	if !valid {
+		return
+	}
+
+	var input user_segmentation.Segment
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Invalid input body")
+		return
+	}
+
+	exists, err := h.services.Segment.Exists(input.Slug)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !exists {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Segment with name '%s' does not exist`, input.Slug))
+		return
+	}
+
+	exists, err = h.services.User.SegmentRelationExists(user_id, input.Slug)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if exists {
+		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Relation ('%d':'%s') already exists`, user_id, input.Slug))
+		return
+	}
+
+	id, err := h.services.User.AddToSegment(user_id, input.Slug)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusCreated, successBaseResponse{
+		Id: id,
+	})
 }
 
 func (h *Handler) deleteUserFromSegment(c *gin.Context) {

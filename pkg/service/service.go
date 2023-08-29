@@ -18,6 +18,8 @@ type Segment interface {
 
 type User interface {
 	GetActiveSegment(user_id int) ([]user_segmentation.UserSegment, error)
+	AddToSegment(user_id int, slug string) (int, error)
+	SegmentRelationExists(user_id int, slug string) (bool, error)
 }
 
 type Service struct {

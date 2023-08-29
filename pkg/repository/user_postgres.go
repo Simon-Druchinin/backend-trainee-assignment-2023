@@ -27,3 +27,36 @@ func (r *UserPostgres) GetActiveSegment(user_id int) ([]user_segmentation.UserSe
 
 	return activeSegments, nil
 }
+
+func (r *UserPostgres) AddToSegment(user_id int, slug string) (int, error) {
+	var id int
+
+	query := fmt.Sprintf(`INSERT INTO %s (user_id, segment_id)
+						SELECT $1, id AS segment_id
+						FROM %s
+						WHERE slug=$2 RETURNING id`, usersSegmentsRelationTable, segmentsTable)
+	row := r.db.QueryRow(query, user_id, slug)
+
+	if err := row.Scan(&id); err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (r *UserPostgres) SegmentRelationExists(user_id int, slug string) (bool, error) {
+	var exists bool
+
+	query := fmt.Sprintf(`SELECT EXISTS (
+		SELECT * FROM %s
+		INNER JOIN %s 
+		ON user_id=$1 AND slug=$2 AND segments.id = segment_id)`, usersSegmentsRelationTable, segmentsTable)
+
+	row := r.db.QueryRow(query, user_id, slug)
+
+	if err := row.Scan(&exists); err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
