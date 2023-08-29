@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"user_segmentation"
 
 	"github.com/gin-gonic/gin"
 )
@@ -81,9 +80,9 @@ func (h *Handler) showUserActiveSegments(c *gin.Context) {
 // @ID			add-user-to-segment
 // @Accept		json
 // @Produce		json
-// @Success		200 {object} successBaseResponse
+// @Success		201 {object} statusResponse
 // @Param		id path int true "User ID"
-// @Param		input body user_segmentation.Segment true "Segment data"
+// @Param		input body []string true "Segment data"
 // @Failure		400 {object} errorResponse
 // @Failure		404 {object} errorResponse
 // @Failure		500 {object} errorResponse
@@ -95,47 +94,49 @@ func (h *Handler) addUserToSegment(c *gin.Context) {
 		return
 	}
 
-	var input user_segmentation.Segment
+	var input []string
 
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.BindJSON(&input); err != nil || len(input) == 0 {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid input body")
 		return
 	}
 
-	exists, err := h.services.Segment.Exists(input.Slug)
+	for _, slug := range input {
+		exists, err := h.services.Segment.Exists(slug)
 
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		if !exists {
+			newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Segment with name '%s' does not exist`, slug))
+			return
+		}
+
+		exists, err = h.services.User.SegmentRelationExists(user_id, slug)
+
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		if exists {
+			newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Relation ('%d':'%s') already exists`, user_id, slug))
+			return
+		}
 	}
 
-	if !exists {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Segment with name '%s' does not exist`, input.Slug))
-		return
+	for _, slug := range input {
+		_, err := h.services.User.AddToSegment(user_id, slug)
+
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 
-	exists, err = h.services.User.SegmentRelationExists(user_id, input.Slug)
-
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	if exists {
-		newErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf(`Relation ('%d':'%s') already exists`, user_id, input.Slug))
-		return
-	}
-
-	id, err := h.services.User.AddToSegment(user_id, input.Slug)
-
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	c.JSON(http.StatusCreated, successBaseResponse{
-		Id: id,
-	})
+	c.JSON(http.StatusCreated, statusResponse{"ok"})
 }
 
 // @Summary		Delete user from segment

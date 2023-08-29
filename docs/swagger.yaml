@@ -124,14 +124,16 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/user_segmentation.Segment'
+          items:
+            type: string
+          type: array
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/handler.successBaseResponse'
+            $ref: '#/definitions/handler.statusResponse'
         "400":
           description: Bad Request
           schema:

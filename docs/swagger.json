@@ -141,15 +141,18 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user_segmentation.Segment"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handler.successBaseResponse"
+                            "$ref": "#/definitions/handler.statusResponse"
                         }
                     },
                     "400": {
