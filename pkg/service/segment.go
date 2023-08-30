@@ -5,6 +5,8 @@ import (
 	"user_segmentation/pkg/repository"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
+
 type SegmentService struct {
 	repo repository.Segment
 }
