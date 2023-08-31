@@ -31,6 +31,17 @@ definitions:
     required:
     - slug
     type: object
+  user_segmentation.UserSegmentHistory:
+    properties:
+      operation_type:
+        type: string
+      slug:
+        type: string
+      timestamp:
+        type: string
+      user_id:
+        type: integer
+    type: object
 host: localhost:8000
 info:
   contact: {}
@@ -223,6 +234,45 @@ paths:
           schema:
             $ref: '#/definitions/handler.errorResponse'
       summary: Show user active segments
+      tags:
+      - users
+  /api/users/show_segments_history/{year}/{month}:
+    get:
+      consumes:
+      - application/json
+      description: Show user segments history
+      operationId: show-user-segments-history
+      parameters:
+      - description: Operation year
+        in: path
+        name: year
+        required: true
+        type: integer
+      - description: Operation month
+        in: path
+        name: month
+        required: true
+        type: integer
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_segmentation.UserSegmentHistory'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Show user segments history
       tags:
       - users
   /auth/register:

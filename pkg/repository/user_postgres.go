@@ -68,3 +68,17 @@ func (r *UserPostgres) DeleteSegmentRelation(user_id int, slug string) error {
 	_, err := r.db.Exec(query, user_id, slug)
 	return err
 }
+
+func (r *UserPostgres) GetSegmentRelationHistory(month, year int) ([]user_segmentation.UserSegmentHistory, error) {
+	var user_segments_history []user_segmentation.UserSegmentHistory
+
+	query := fmt.Sprintf(`SELECT user_id, slug, operation_type, timestamp
+						FROM %s
+						INNER JOIN %s ON segments.id = segment_id
+						WHERE date_part('year', timestamp)=$1 AND date_part('month', timestamp)=$2`, usersSegmentsHistory, segmentsTable)
+	if err := r.db.Select(&user_segments_history, query, year, month); err != nil {
+		return nil, err
+	}
+
+	return user_segments_history, nil
+}

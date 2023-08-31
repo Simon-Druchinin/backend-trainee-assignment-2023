@@ -113,6 +113,64 @@
                 }
             }
         },
+        "/api/users/show_segments_history/{year}/{month}": {
+            "get": {
+                "description": "Show user segments history",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Show user segments history",
+                "operationId": "show-user-segments-history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Operation year",
+                        "name": "year",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Operation month",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user_segmentation.UserSegmentHistory"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/{id}/add_to_segment": {
             "post": {
                 "description": "Add user to segment",
@@ -377,6 +435,23 @@
             "properties": {
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "user_segmentation.UserSegmentHistory": {
+            "type": "object",
+            "properties": {
+                "operation_type": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         }

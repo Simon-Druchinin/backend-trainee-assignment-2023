@@ -28,3 +28,7 @@ func (s *UserService) SegmentRelationExists(user_id int, slug string) (bool, err
 func (s *UserService) DeleteSegmentRelation(user_id int, slug string) error {
 	return s.repo.DeleteSegmentRelation(user_id, slug)
 }
+
+func (s *UserService) GetSegmentRelationHistory(month, year int) ([]user_segmentation.UserSegmentHistory, error) {
+	return s.repo.GetSegmentRelationHistory(month, year)
+}

@@ -46,6 +46,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		users := api.Group("users")
 		{
 			users.GET("/:id/show_active_segments", h.showUserActiveSegments)
+			users.GET("/show_segments_history/:year/:month", h.showUserSegmentsHistory)
 			users.POST("/:id/add_to_segment", h.addUserToSegment)
 			users.DELETE("/:id/delete_from_segment", h.deleteUserFromSegment)
 		}

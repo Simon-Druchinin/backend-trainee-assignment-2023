@@ -10,6 +10,7 @@ const (
 	usersTable                 = "users"
 	segmentsTable              = "segments"
 	usersSegmentsRelationTable = "users_segments"
+	usersSegmentsHistory       = "users_segments_history"
 )
 
 type Config struct {

@@ -21,6 +21,7 @@ type User interface {
 	AddToSegment(user_id int, slug string) (int, error)
 	SegmentRelationExists(user_id int, slug string) (bool, error)
 	DeleteSegmentRelation(user_id int, slug string) error
+	GetSegmentRelationHistory(month, year int) ([]user_segmentation.UserSegmentHistory, error)
 }
 
 type Service struct {
