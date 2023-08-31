@@ -35,6 +35,7 @@ CREATE OR REPLACE FUNCTION update_users_segments_history() RETURNS TRIGGER AS $u
             INSERT INTO users_segments_history (user_id, segment_id, operation_type) SELECT OLD.user_id, OLD.segment_id, 'DELETE';
             RETURN OLD;
 		END IF;
+        EXCEPTION WHEN OTHERS THEN RETURN NULL; -- if delete slug directly from segments table
         RETURN NULL; -- result is ignored since this is an AFTER trigger
     END;
 $users_segments_history$ LANGUAGE plpgsql;
