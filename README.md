@@ -124,3 +124,20 @@ curl -X 'DELETE' \
   "status": "ok"
 }
 ```
+
+### 7./api/users/show_segments_history/{year}/{month}
+
+***Запрос:***
+```
+curl -X 'GET' \
+  'http://localhost:8000/api/users/show_segments_history/2023/8' \
+  -H 'accept: text/csv'
+```
+***Ответ:***
+
+usersSegmentsHistory.csv
+
+UserID | Slug | Operation | Timestamp
+--- | --- | --- | --- 
+1 | AVITO_TEST | INSERT | 2023-08-31 16:24:57.260668 +0000 +0000
+2 | AVITO_TEST | DELETE | 2023-08-31 16:24:57.260668 +0000 +0000
