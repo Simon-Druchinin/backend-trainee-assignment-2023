@@ -9,8 +9,8 @@ import (
 )
 
 type userSegments struct {
-	User_id int
-	Slugs   []string
+	User_id int      `json:"user_id"`
+	Slugs   []string `json:"slugs"`
 }
 
 func (h *Handler) validateUserIdParam(paramName string, c *gin.Context) (int, bool) {
